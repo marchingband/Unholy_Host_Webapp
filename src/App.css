@@ -1,0 +1,131 @@
+.App{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 1150px;
+}
+
+.header {
+    text-align: center;
+    display: flex;
+}
+
+.App h2 {
+    display: inline;
+    margin: auto;
+    /* margin-bottom: 30px; */
+}
+
+.button {
+    /* width: 50px; */
+    padding: 10px;
+    border: 2px solid pink;
+    margin: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+}
+
+.button:hover {
+    opacity: 0.5;
+}
+
+.select-group{
+    display: flex;
+    align-items: center;
+}
+
+.select-meta-group{
+    margin-block: 10px;
+    border: 3px solid pink;
+    margin-right: auto;
+}
+
+.select-group select {
+    width: 230px;
+    color:wheat;
+    background-color: black;
+}
+
+.select-group label {
+    width: 283px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid lightgray;
+    margin:1px
+}
+
+.cal-buttons {
+    display: flex;
+    /* justify-content: space-evenly; */
+    align-items: center;
+    border: 1px solid lightblue;
+    margin: 1px;
+    color: wheat;
+    margin-right: auto;
+}
+
+.button-container {
+    width: 150px;
+    /* border-color: aqua; */
+    /* border-style: dashed; */
+}
+
+
+.cal-readings {
+    display: flex;
+    align-items: center;
+    border: 1px solid lightblue;
+    margin: 1px;
+    color: wheat;
+    margin-right: auto;
+}
+
+.cal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cal input {
+    height: 30px;
+    width:100px;
+    /* padding-inline: 20px; */
+    background-color: black;
+    color: wheat
+}
+
+.input-container {
+    width: 150px
+}
+
+.cal-button {
+    padding: 10px;
+    border: 2px solid pink;
+    margin: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    width: 40px;
+    outline: 1px solid gold;
+    /* margin-inline: 52px; */
+}
+
+.big-button {
+    width: 1150px;
+    border: 2px solid pink;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:50px;
+    margin-block: 10px;
+}
+
+.big-button:hover {
+    opacity: 0.5;
+}
+
