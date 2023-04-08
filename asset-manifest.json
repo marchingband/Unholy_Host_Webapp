@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/UCB/static/css/main.6e88df18.css",
+    "main.js": "/UCB/static/js/main.3cf917c2.js",
+    "static/js/787.71e672d5.chunk.js": "/UCB/static/js/787.71e672d5.chunk.js",
+    "index.html": "/UCB/index.html",
+    "main.6e88df18.css.map": "/UCB/static/css/main.6e88df18.css.map",
+    "main.3cf917c2.js.map": "/UCB/static/js/main.3cf917c2.js.map",
+    "787.71e672d5.chunk.js.map": "/UCB/static/js/787.71e672d5.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6e88df18.css",
+    "static/js/main.3cf917c2.js"
+  ]
+}
