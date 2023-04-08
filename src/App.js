@@ -4,7 +4,7 @@ import { useConfig, useMidi, polyhponyModes, cvSources, polyphonyKinds, cvModes,
 
 function App() {
   const config = useConfig()
-  const {sendNoteOn, sendConfigSysex, sendSysexRequest} = useMidi(config)
+  const {sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop} = useMidi(config)
   return (
     <div className="App">
       <span className='header'>
@@ -347,7 +347,15 @@ function App() {
       </div>
       <div 
         className='big-button'
-        onClick={()=>config.setCalibrating(!config.calibrating)}
+        onClick={()=>{
+          if(config.calibrating){
+            sendCalStop()
+            config.setCalibrating(false)
+          } else {
+            sendCalStart()
+            config.setCalibrating(true)
+          }
+        }}
       >
         {config.calibrating ? "STOP CALIBRATION" : "START CALIBRATION"}
       </div>

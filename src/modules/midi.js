@@ -3,6 +3,15 @@ import { useCallback, useEffect, useState } from "react"
 import { names } from "./names"
 import { floatToIntArray, intArrayToFloat } from "./util"
 
+const MANUFACTURER_ID_1 = 0x00
+const MANUFACTURER_ID_2 = 0x21
+const MANUFACTURER_ID_3 = 0x75 // 117, ascii value for "u" for ultrapalace, should be between 0x60 and 0x7F for sysex spec
+const SYSEX_TYPE_CONFIG =  0x00
+const SYSEX_TYPE_ACK =  0x01
+const SYSEX_TYPE_REQUEST_CONFIG =  0x02
+const SYSEX_TYPE_CAL_MODE_ON = 0x03
+const SYSEX_TYPE_CAL_MODE_OFF = 0x04
+
 // polyphony modes
 export const MONOPHONIC = 0
 export const DUOPHONIC = 1
@@ -429,21 +438,73 @@ export const useMidi = (config) => {
 
     const handleSysex = useCallback((raw_data)=>{
         console.log(midiOut)
-        const data = raw_data.slice(1,-1)
-        setConfigFromArray(data, config)
+        const [ head, id1, id2, id3, type, ...data] = raw_data
+        if(
+            (id1 != MANUFACTURER_ID_1) ||
+            (id2 != MANUFACTURER_ID_3) ||
+            (id3 != MANUFACTURER_ID_2)
+        ){
+            return console.log("got sysex from a different device")
+        }
+        if(type == SYSEX_TYPE_CONFIG){
+            setConfigFromArray(data, config)
+        } else if(type == SYSEX_TYPE_ACK) {
+            console.log("got SYSEX ACK")
+        } else {
+            console.log("got unknown sysex type")
+        }
     }, [config])
 
     const sendConfigSysex = useCallback(()=>{
         const data = getConfigArray(config)
-        midiOut.send([0xf0, ...data, 0xf7])
+        midiOut.send([
+            0xf0, 
+            MANUFACTURER_ID_1, 
+            MANUFACTURER_ID_2, 
+            MANUFACTURER_ID_3, 
+            SYSEX_TYPE_CONFIG, 
+            ...data, 
+            0xf7
+        ])
     },[config, midiOut])
 
     const sendSysexRequest = useCallback(()=>{
         console.log("sending sysex request")
-        midiOut.send([0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0xF7])
+        midiOut.send([
+            0xF0, 
+            MANUFACTURER_ID_1, 
+            MANUFACTURER_ID_2, 
+            MANUFACTURER_ID_3, 
+            SYSEX_TYPE_REQUEST_CONFIG,
+            0xF7
+        ])
     }, [midiOut])
 
-    return {sendNoteOn, sendConfigSysex, sendSysexRequest}
+    const sendCalStart = useCallback(()=>{
+        console.log("sending cal mode start")
+        midiOut.send([
+            0xF0, 
+            MANUFACTURER_ID_1, 
+            MANUFACTURER_ID_2, 
+            MANUFACTURER_ID_3, 
+            SYSEX_TYPE_CAL_MODE_ON,
+            0xF7
+        ])
+    }, [midiOut])
+
+    const sendCalStop = useCallback(()=>{
+        console.log("sending cal mode stop")
+        midiOut.send([
+            0xF0, 
+            MANUFACTURER_ID_1, 
+            MANUFACTURER_ID_2, 
+            MANUFACTURER_ID_3, 
+            SYSEX_TYPE_CAL_MODE_OFF,
+            0xF7
+        ])
+    }, [midiOut])
+
+    return {sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop}
 }
 
 export const setConfigFromArray = (data, store) => {
