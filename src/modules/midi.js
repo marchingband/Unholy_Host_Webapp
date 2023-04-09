@@ -1,11 +1,12 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { names } from "./names"
-import { floatToIntArray, intArrayToFloat } from "./util"
+import { floatToIntArray, intArrayToFloat, getChecksum } from "./util"
 
 const MANUFACTURER_ID_1 = 0x00
 const MANUFACTURER_ID_2 = 0x21
 const MANUFACTURER_ID_3 = 0x75 // 117, ascii value for "u" for ultrapalace, should be between 0x60 and 0x7F for sysex spec
+
 const SYSEX_TYPE_CONFIG =  0x00
 const SYSEX_TYPE_ACK =  0x01
 const SYSEX_TYPE_REQUEST_CONFIG =  0x02
@@ -187,6 +188,8 @@ export const useConfig = () => {
     
     const [calibrating, setCalibrating] = useState(false)
     const [calibrationPitch, setCalibrationPitch] = useState(0)
+    const [showModal, setShowModal] = useState(false)
+    const [modalText, setModaltext] = useState("")
 
     const [CAL_1_0, setCAL_1_0] = useState(0.002)
     const [CAL_1_1, setCAL_1_1] = useState(0.077)
@@ -262,6 +265,8 @@ export const useConfig = () => {
         GATE_8_INVERT,
         calibrating,
         calibrationPitch,
+        showModal, 
+        modalText, 
         CAL_1_0,
         CAL_1_1,
         CAL_1_2,
@@ -333,6 +338,8 @@ export const useConfig = () => {
         setGATE_8_INVERT,
         setCalibrating,
         setCalibrationPitch,
+        setShowModal,
+        setModaltext,
         setCAL_1_0,
         setCAL_1_1,
         setCAL_1_2,
@@ -395,9 +402,12 @@ export const useMidi = (config) => {
             console.log( "Output port [type:'" + output.type + "'] id:'" + output.id +
             "' manufacturer:'" + output.manufacturer + "' name:'" + output.name +
             "' version:'" + output.version + "'" );
-            setMidiOut(output)
+            if(output.name == "Seeeduino XIAO"){
+                console.log("found UCB output, connecting")
+                setMidiOut(output)
+                return output
+            }
             // midiOut = output
-            return output
         }
     },[midiOut])
 
@@ -407,16 +417,17 @@ export const useMidi = (config) => {
           str += "0x" + event.data[i].toString(16) + " ";
         }
         console.log( str );
-
         handleSysex(event.data)
-
     },[midiOut])
 
     const startMidi = useCallback((midi, output) => {
-        midi.inputs.forEach(entry => entry.onmidimessage = onMIDIMessage);
-        console.log("sending some sysex")
-        output.send([0xF0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0xF7])
-    }, [midiOut])
+        midi.inputs.forEach(entry => {
+            if(entry.name == "Seeeduino XIAO"){
+                console.log("found UCB input, connecting")
+                entry.onmidimessage = onMIDIMessage
+            }
+        })
+    }, [midiOut, config])
 
     const initWebMidi = async () => {
         if(!navigator.requestMIDIAccess){
@@ -434,36 +445,70 @@ export const useMidi = (config) => {
 
     const sendNoteOn = useCallback((note)=>{
         midiOut.send([0x90, note, 0x7f])
+        setTimeout(()=>{
+            midiOut.send([0x80, note, 0x7f])
+        },500)
     }, [midiOut])
 
     const handleSysex = useCallback((raw_data)=>{
-        console.log(midiOut)
         const [ head, id1, id2, id3, type, ...data] = raw_data
         if(
             (id1 != MANUFACTURER_ID_1) ||
-            (id2 != MANUFACTURER_ID_3) ||
-            (id3 != MANUFACTURER_ID_2)
+            (id2 != MANUFACTURER_ID_2) ||
+            (id3 != MANUFACTURER_ID_3)
         ){
             return console.log("got sysex from a different device")
         }
         if(type == SYSEX_TYPE_CONFIG){
-            setConfigFromArray(data, config)
+            const len = data.length
+            const checksum = data[len - 2] // last byte is tail, second last is checksum
+            data.length = len - 2 // remove the last byte
+            const check = getChecksum(data)
+            if(checksum == check){
+                console.log("checksum passed")
+                setConfigFromArray(data, config)
+            } else {
+                console.log("checksum failed")
+            }
         } else if(type == SYSEX_TYPE_ACK) {
             console.log("got SYSEX ACK")
+            config.setModaltext("Success")
+            setTimeout(()=>{
+                config.setShowModal(false)
+            },1000)
         } else {
             console.log("got unknown sysex type")
         }
     }, [config])
 
+    const maybeShowError = useCallback((ms)=>{
+        setTimeout(()=>{
+            config.setShowModal(show=>{
+                if(show){
+                    config.setModaltext("failed")
+                    setTimeout(()=>{
+                        config.setShowModal(false)
+                    },1000)
+                }
+                return show
+            })
+        }, ms)
+    }, [config.showModal])
+
     const sendConfigSysex = useCallback(()=>{
+        config.setModaltext("sending sysex")
+        config.setShowModal(true)
+        maybeShowError(2000)
         const data = getConfigArray(config)
+        const checksum = getChecksum(data)
         midiOut.send([
             0xf0, 
             MANUFACTURER_ID_1, 
             MANUFACTURER_ID_2, 
             MANUFACTURER_ID_3, 
-            SYSEX_TYPE_CONFIG, 
+            SYSEX_TYPE_CONFIG,
             ...data, 
+            checksum,
             0xf7
         ])
     },[config, midiOut])

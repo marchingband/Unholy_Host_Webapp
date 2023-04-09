@@ -7,6 +7,19 @@ function App() {
   const {sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop} = useMidi(config)
   return (
     <div className="App">
+      {
+        config.showModal &&
+        <>
+          <div className='modal-hazer'/>
+          <div className='modal-container'>
+            <div className='modal'>
+              <div className='modal-content'>
+                {config.modalText}
+              </div>
+            </div>
+          </div>
+        </>
+      }
       <span className='header'>
         <h2>
           UNIVERSES CEREAL BUST
@@ -363,7 +376,7 @@ function App() {
         <div style={{width:"100px"}}>SELECT</div>
         {
           calibration_values.map((val, i)=>
-            <div className='button-container'>
+            <div className='button-container' key={i}>
               <div 
                 key={i}
                 className='cal-button'

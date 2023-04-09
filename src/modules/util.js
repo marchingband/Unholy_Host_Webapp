@@ -16,3 +16,11 @@ export const intArrayToFloat = arr => {
     out += (arr[3] * 0.001)
     return out
 }
+
+export const getChecksum = data => {
+      let res = 0x7f;
+      for(let i = 0; i < data.length; i++) {
+        res ^= data[i];
+      }
+      return res;
+}
