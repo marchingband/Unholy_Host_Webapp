@@ -452,11 +452,14 @@ function App() {
         )
       }
       <div className='metronome'>
-        METRONOME
+        <h2>
+          METRONOME and KEYPAD
+        </h2>
         <div>
           <label>
             TEMPO
             <select
+              style={{margin:8}}
               value={tempo}
               onChange={e=>setTempo(e.target.value)}
             >
