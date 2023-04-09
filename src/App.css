@@ -165,3 +165,37 @@
     font-size: 28px;
     color: wheat;
 }
+
+.metronome {
+    border: 2px solid pink;
+    margin-block: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.metronome-light {
+    border: 5px solid red;
+    height: 40px;
+    width: 40px;
+    border-radius: 40px;
+    background-color: pink;
+    margin-inline: auto;
+}
+
+.keyboard {
+    border: 10px solid pink;
+    display: flex;
+    flex-flow: wrap;
+}
+
+.key {
+    border: 1px solid gold;
+    margin: 2px;
+    width: 88px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.key:hover {
+    opacity: 0.5;
+}

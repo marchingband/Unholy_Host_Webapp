@@ -1,10 +1,12 @@
 import './App.css';
 import { names } from './modules/names';
-import { useConfig, useMidi, polyhponyModes, cvSources, polyphonyKinds, cvModes, pitchbendRanges, ccCommands, clockDividers, resetBeats, gateSources, midiNotes, MONOPHONIC, TRIPHONIC, DUOPHONIC, calibration_values } from './modules/midi';
+import { useMetronome, useConfig, useMidi, polyhponyModes, cvSources, polyphonyKinds, cvModes, pitchbendRanges, ccCommands, clockDividers, resetBeats, gateSources, midiNotes, MONOPHONIC, TRIPHONIC, DUOPHONIC, calibration_values, tempos } from './modules/midi';
+import { useState } from 'react';
 
 function App() {
   const config = useConfig()
-  const {sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop} = useMidi(config)
+  const {sendClock, sendNoteOn, sendNoteOnOff, sendNoteOff, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop} = useMidi(config)
+  const {setMetronome, blink, tempo, setTempo} = useMetronome(sendClock)
   return (
     <div className="App">
       {
@@ -383,7 +385,7 @@ function App() {
                 style={{outlineWidth: i == config.calibrationPitch ? 3 : 0}}
                 onClick={()=>{
                   config.setCalibrationPitch(i)
-                  sendNoteOn(val)
+                  sendNoteOnOff(val)
                 }}
               >
                 {val}
@@ -449,9 +451,69 @@ function App() {
           </div>
         )
       }
+      <div className='metronome'>
+        METRONOME
+        <div>
+          <label>
+            TEMPO
+            <select
+              value={tempo}
+              onChange={e=>setTempo(e.target.value)}
+            >
+              {
+                tempos.map((t,i)=>
+                  <option value={t} key={i}>
+                    {t}
+                  </option>
+                )
+              }
+            </select>
+          </label>          
+        </div>
+        <div 
+          className='button'
+          onClick={()=>setMetronome(true)}
+          >
+          START
+        </div>
+        <div 
+          className='button'
+          onClick={()=>setMetronome(false)}
+        >
+          STOP
+        </div>
+        <div 
+          className='metronome-light'
+          style={{opacity: blink ? 1 : 0}}  
+        />
+      </div>
+      <div className='keyboard'>
+        {
+          midiNotes.map((note,i)=>
+            <Key key={i} note={note} sendNoteOn={sendNoteOn} sendNoteOff={sendNoteOff}/>
+          )
+        }
+      </div>
     </div>
     
   );
+}
+
+const Key = ({note, sendNoteOn, sendNoteOff}) => {
+  const [on, setOn] = useState(false)
+  return(
+    <div 
+      className='key'
+      style={{backgroundColor: on ? 'green' : 'black'}}
+      onClick={()=>{
+        on ? sendNoteOff(note) : sendNoteOn(note)
+        setOn(!on)
+      }}
+    >
+      {names.midiNotes[note]}
+    </div>
+
+  )
 }
 
 export default App;

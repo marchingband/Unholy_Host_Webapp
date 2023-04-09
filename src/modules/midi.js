@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, useRef } from "react"
 import { names } from "./names"
 import { floatToIntArray, intArrayToFloat, getChecksum } from "./util"
 
@@ -67,7 +67,9 @@ export const clockDividers = Array(124).fill().map((_,i)=>i)
 
 export const resetBeats = Array(127).fill().map((_,i)=>i)
 
-export const midiNotes = Array(127).fill().map((_,i)=>i)
+export const midiNotes = Array(60).fill().map((_,i)=>i+33)
+
+export const tempos = Array(200).fill().map((_,i)=>i+40)
 
 export const calibration_values = [0, 1, 13, 25, 37, 49, 59];
 
@@ -443,11 +445,30 @@ export const useMidi = (config) => {
         }
     }
 
-    const sendNoteOn = useCallback((note)=>{
-        midiOut.send([0x90, note, 0x7f])
+
+
+    const sendNoteOnOff = useCallback((note)=>{
+        if(!midiOut)return
+        sendNoteOn(note)
         setTimeout(()=>{
-            midiOut.send([0x80, note, 0x7f])
+            sendNoteOff(note)
         },500)
+    }, [midiOut])
+
+    const sendNoteOn = useCallback((note)=>{
+        if(!midiOut)return
+        midiOut.send([0x90, note, 0x7f])
+    }, [midiOut])
+
+    const sendNoteOff = useCallback((note)=>{
+        if(!midiOut)return
+        midiOut.send([0x80, note, 0x7f])
+    }, [midiOut])
+    
+    const sendClock = useCallback(()=>{
+        if(!midiOut)return
+
+        midiOut.send([0xF8])
     }, [midiOut])
 
     const handleSysex = useCallback((raw_data)=>{
@@ -496,6 +517,8 @@ export const useMidi = (config) => {
     }, [config.showModal])
 
     const sendConfigSysex = useCallback(()=>{
+        if(!midiOut)return
+
         config.setModaltext("sending sysex")
         config.setShowModal(true)
         maybeShowError(2000)
@@ -514,6 +537,8 @@ export const useMidi = (config) => {
     },[config, midiOut])
 
     const sendSysexRequest = useCallback(()=>{
+        if(!midiOut)return
+
         console.log("sending sysex request")
         midiOut.send([
             0xF0, 
@@ -526,6 +551,8 @@ export const useMidi = (config) => {
     }, [midiOut])
 
     const sendCalStart = useCallback(()=>{
+        if(!midiOut)return
+
         console.log("sending cal mode start")
         midiOut.send([
             0xF0, 
@@ -538,6 +565,8 @@ export const useMidi = (config) => {
     }, [midiOut])
 
     const sendCalStop = useCallback(()=>{
+        if(!midiOut)return
+
         console.log("sending cal mode stop")
         midiOut.send([
             0xF0, 
@@ -549,7 +578,7 @@ export const useMidi = (config) => {
         ])
     }, [midiOut])
 
-    return {sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop}
+    return {sendClock, sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop, sendNoteOnOff, sendNoteOff}
 }
 
 export const setConfigFromArray = (data, store) => {
@@ -718,4 +747,36 @@ export const getConfigArray = store => {
         ...floatToIntArray(store.CAL_3_6)
     ]
     return data
+}
+
+export const useMetronome = (sendClock) => {
+    const [metronome, setMetronome] = useState(false)
+    const [blink, setBlink] = useState(true)
+    const [tempo, setTempo] = useState(120)
+    const count = useRef(0)
+    const metronome_ref = useRef(false)
+    const tempo_ref = useRef(120)
+
+    const tick = useCallback(()=>{
+        if(!metronome_ref.current) return
+        count.current++
+        sendClock()
+        count.current = count.current == 24 ? 0 : count.current
+        if(!(count.current % 12)){
+            setBlink(b=>!b)
+        }
+        setTimeout(tick, 1000 / ( tempo_ref.current / 60 ) / 24)
+    },[tempo, metronome, setBlink])
+
+    useEffect(()=>{
+        metronome_ref.current = metronome
+        if(metronome) 
+            tick()
+    }, [metronome])
+
+    useEffect(()=>{
+        tempo_ref.current = tempo
+    }, [tempo])
+
+    return {blink, setMetronome, tempo, setTempo}
 }
