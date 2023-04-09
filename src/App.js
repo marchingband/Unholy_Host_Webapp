@@ -40,7 +40,7 @@ function App() {
           SAVE
         </span>
       </span>
-      <div className='select-group'>
+      <div className='select-group group'>
         {
           polyhponyModes.map((mode,i)=>
             <label key={i}>
@@ -55,7 +55,7 @@ function App() {
           )
         }
       </div>
-      <div className="select-group">
+      <div className="select-group group">
         {
           [
             { get: config.CV_1_SOURCE, set: config.setCV_1_SOURCE, abled: config.POLYPHONY_MODE == MONOPHONIC },
@@ -81,7 +81,7 @@ function App() {
           )
         }
       </div>
-      <div className="select-group">
+      <div className="select-group group">
         {
           [
             { get: config.CV_1_AND_2_MODE,       set: config.setCV_1_AND_2_MODE,       abled: config.POLYPHONY_MODE == DUOPHONIC },
@@ -106,7 +106,7 @@ function App() {
           )
         }
       </div>
-      <div className="select-group">
+      <div className="select-group group">
         {
           [
             { get: config.CV_1_SCALE, set: config.setCV_1_SCALE },
@@ -131,7 +131,7 @@ function App() {
           )
         }
       </div>
-      <div className="select-group">
+      <div className="select-group group">
           <label>
             PITCHBEND RANGE
             <select
@@ -148,7 +148,7 @@ function App() {
             </select>
           </label>          
       </div>
-      <div className="select-group">
+      <div className="select-group group">
         {
           [
             { get: config.CC1_COMMAND, set: config.setCC1_COMMAND },
@@ -173,7 +173,7 @@ function App() {
           )
         }
       </div>
-      <div className="select-meta-group">
+      <div className="group">
         <div className="select-group">
           {
             [
@@ -227,7 +227,7 @@ function App() {
           }
         </div>
       </div>
-      <div className="select-group">
+      <div className="select-group group">
         {
           [
             { get: config.RESET_1_BEATS, set: config.setRESET_1_BEATS },
@@ -252,7 +252,7 @@ function App() {
           )
         }
       </div>
-      <div className="select-meta-group">
+      <div className="group">
 
         <div className="select-group">
           {
@@ -375,7 +375,9 @@ function App() {
         {config.calibrating ? "STOP CALIBRATION" : "START CALIBRATION"}
       </div>
       <div className='cal-buttons'>
-        <div style={{width:"100px"}}>SELECT</div>
+        <div className='row-label'>
+          SELECT
+        </div>
         {
           calibration_values.map((val, i)=>
             <div className='button-container' key={i}>
@@ -426,7 +428,9 @@ function App() {
       
         ].map((cv, i)=>
           <div className='cal-readings' key={i}>
-            <div style={{width:"100px"}}>{"CV " + (i + 1)}</div>
+            <div className='row-label'>
+              {"CV " + (i + 1)}
+            </div>
             {
               cv.map(({get, set}, i)=>
                 <div className='cal' key={i}>

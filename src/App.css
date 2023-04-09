@@ -4,6 +4,7 @@
     justify-content: space-evenly;
     width: 1150px;
     font-weight: 400;
+    margin: auto;
 }
 
 .header {
@@ -14,7 +15,6 @@
 .App h2 {
     display: inline;
     margin: auto;
-    /* margin-bottom: 30px; */
 }
 
 .button {
@@ -36,7 +36,7 @@
     align-items: center;
 }
 
-.select-meta-group{
+.group{
     margin-block: 10px;
     border: 3px solid pink;
     margin-right: auto;
@@ -59,6 +59,15 @@
     margin:1px
 }
 
+.gate-group {
+    border: 1px solid pink;
+    /* outline: 1px solid green; */
+}
+
+.gate-group label {
+    border: none;
+}
+
 .cal-buttons {
     display: flex;
     /* justify-content: space-evenly; */
@@ -75,6 +84,10 @@
     /* border-style: dashed; */
 }
 
+.row-label {
+    width: 100px;
+    margin-left: 10px;
+}
 
 .cal-readings {
     display: flex;
@@ -94,7 +107,6 @@
 .cal input {
     height: 30px;
     width:100px;
-    /* padding-inline: 20px; */
     background-color: black;
     color: wheat
 }
@@ -112,7 +124,10 @@
     justify-content: center;
     width: 40px;
     outline: 1px solid gold;
-    /* margin-inline: 52px; */
+}
+
+.cal-button:hover {
+    opacity: 0.5;
 }
 
 .big-button {

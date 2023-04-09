@@ -383,6 +383,8 @@ export const useMidi = (config) => {
 
     const [midiAccess, setMidiAccess] = useState(null)
     const [midiOut, setMidiOut] = useState(null)
+    const [connection, setConnection] = useState(null)
+    const [initilized, setinitilized] = useState(false)
 
     const onMIDISuccess = useCallback(( midi ) => {
         console.log( "MIDI ready!" );
@@ -434,9 +436,13 @@ export const useMidi = (config) => {
             if(entry.name == "Seeeduino XIAO"){
                 console.log("found UCB input, connecting")
                 entry.onmidimessage = onMIDIMessage
+                entry.onstatechange = ({port}) => {
+                    console.log("usb port state change: " + port.connection)
+                    setConnection(port.connection)
+                }
             }
         })
-    }, [midiOut, config])
+    }, [midiOut, config, setConnection])
 
     const initWebMidi = async () => {
         if(!navigator.requestMIDIAccess){
@@ -452,15 +458,13 @@ export const useMidi = (config) => {
         }
     }
 
-
-
     const sendNoteOnOff = useCallback((note)=>{
         if(!midiOut)return
         sendNoteOn(note)
         setTimeout(()=>{
             sendNoteOff(note)
         },500)
-    }, [midiOut])
+    }, [midiOut, connection])
 
     const sendNoteOn = useCallback((note)=>{
         if(!midiOut)return
@@ -526,7 +530,7 @@ export const useMidi = (config) => {
     }, [config.showModal])
 
     const sendConfigSysex = useCallback(()=>{
-        if(!midiOut)return
+        if(connection != "open")return alert("no UCB connected")
 
         config.setModaltext("sending sysex")
         config.setShowModal(true)
@@ -543,10 +547,10 @@ export const useMidi = (config) => {
             checksum,
             0xf7
         ])
-    },[config, midiOut])
+    },[config, midiOut, connection])
 
     const sendSysexRequest = useCallback(()=>{
-        if(!midiOut)return
+        if(connection != "open")return alert("no UCB connected")
 
         console.log("sending sysex request")
         midiOut.send([
@@ -557,7 +561,7 @@ export const useMidi = (config) => {
             SYSEX_TYPE_REQUEST_CONFIG,
             0xF7
         ])
-    }, [midiOut])
+    }, [midiOut, connection])
 
     const sendCalStart = useCallback(()=>{
         if(!midiOut)return
@@ -586,6 +590,14 @@ export const useMidi = (config) => {
             0xF7
         ])
     }, [midiOut])
+
+    useEffect(()=>{
+        console.log("ya")
+        if((connection == "open") && (initilized == false)){
+            setinitilized(true)
+            sendSysexRequest()
+        }
+    }, [connection, initilized])
 
     return {sendMidiRealtime, sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop, sendNoteOnOff, sendNoteOff}
 }
