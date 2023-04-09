@@ -3,6 +3,11 @@ import { useCallback, useEffect, useState, useRef } from "react"
 import { names } from "./names"
 import { floatToIntArray, intArrayToFloat, getChecksum } from "./util"
 
+export const MIDI_CLOCK = 0xF8
+export const MIDI_START = 0xFA
+export const MIDI_CONTINUE = 0xFB
+export const MIDI_STOP = 0xFC
+
 const MANUFACTURER_ID_1 = 0x00
 const MANUFACTURER_ID_2 = 0x21
 const MANUFACTURER_ID_3 = 0x75 // 117, ascii value for "u" for ultrapalace, should be between 0x60 and 0x7F for sysex spec
@@ -67,7 +72,9 @@ export const clockDividers = Array(124).fill().map((_,i)=>i)
 
 export const resetBeats = Array(127).fill().map((_,i)=>i)
 
-export const midiNotes = Array(60).fill().map((_,i)=>i+33)
+export const midiNotes = Array(127).fill().map((_,i)=>i)
+
+export const midiNotesInRange = Array(60).fill().map((_,i)=>i+33)
 
 export const tempos = Array(200).fill().map((_,i)=>i+40)
 
@@ -457,18 +464,20 @@ export const useMidi = (config) => {
 
     const sendNoteOn = useCallback((note)=>{
         if(!midiOut)return
+        console.log("send note on " + note)
         midiOut.send([0x90, note, 0x7f])
     }, [midiOut])
-
+    
     const sendNoteOff = useCallback((note)=>{
         if(!midiOut)return
+        console.log("send note off " + note)
         midiOut.send([0x80, note, 0x7f])
     }, [midiOut])
     
-    const sendClock = useCallback(()=>{
+    const sendMidiRealtime = useCallback((code)=>{
         if(!midiOut)return
 
-        midiOut.send([0xF8])
+        midiOut.send([code])
     }, [midiOut])
 
     const handleSysex = useCallback((raw_data)=>{
@@ -578,7 +587,7 @@ export const useMidi = (config) => {
         ])
     }, [midiOut])
 
-    return {sendClock, sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop, sendNoteOnOff, sendNoteOff}
+    return {sendMidiRealtime, sendNoteOn, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop, sendNoteOnOff, sendNoteOff}
 }
 
 export const setConfigFromArray = (data, store) => {
@@ -749,7 +758,7 @@ export const getConfigArray = store => {
     return data
 }
 
-export const useMetronome = (sendClock) => {
+export const useMetronome = (sendMidiRealtime) => {
     const [metronome, setMetronome] = useState(false)
     const [blink, setBlink] = useState(true)
     const [tempo, setTempo] = useState(120)
@@ -760,7 +769,7 @@ export const useMetronome = (sendClock) => {
     const tick = useCallback(()=>{
         if(!metronome_ref.current) return
         count.current++
-        sendClock()
+        sendMidiRealtime(MIDI_CLOCK)
         count.current = count.current == 24 ? 0 : count.current
         if(!(count.current % 12)){
             setBlink(b=>!b)
@@ -770,8 +779,13 @@ export const useMetronome = (sendClock) => {
 
     useEffect(()=>{
         metronome_ref.current = metronome
-        if(metronome) 
+        if(metronome){
+            sendMidiRealtime(MIDI_START)
             tick()
+        } else {
+            sendMidiRealtime(MIDI_STOP)
+        }
+            
     }, [metronome])
 
     useEffect(()=>{

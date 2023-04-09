@@ -1,12 +1,12 @@
 import './App.css';
 import { names } from './modules/names';
-import { useMetronome, useConfig, useMidi, polyhponyModes, cvSources, polyphonyKinds, cvModes, pitchbendRanges, ccCommands, clockDividers, resetBeats, gateSources, midiNotes, MONOPHONIC, TRIPHONIC, DUOPHONIC, calibration_values, tempos } from './modules/midi';
+import { useMetronome, useConfig, useMidi, polyhponyModes, cvSources, polyphonyKinds, cvModes, pitchbendRanges, ccCommands, clockDividers, resetBeats, gateSources, midiNotes, MONOPHONIC, TRIPHONIC, DUOPHONIC, calibration_values, tempos, midiNotesInRange } from './modules/midi';
 import { useState } from 'react';
 
 function App() {
   const config = useConfig()
-  const {sendClock, sendNoteOn, sendNoteOnOff, sendNoteOff, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop} = useMidi(config)
-  const {setMetronome, blink, tempo, setTempo} = useMetronome(sendClock)
+  const {sendMidiRealtime, sendNoteOn, sendNoteOnOff, sendNoteOff, sendConfigSysex, sendSysexRequest, sendCalStart, sendCalStop} = useMidi(config)
+  const {setMetronome, blink, tempo, setTempo} = useMetronome(sendMidiRealtime)
   return (
     <div className="App">
       {
@@ -492,7 +492,7 @@ function App() {
       </div>
       <div className='keyboard'>
         {
-          midiNotes.map((note,i)=>
+          midiNotesInRange.map((note,i)=>
             <Key key={i} note={note} sendNoteOn={sendNoteOn} sendNoteOff={sendNoteOff}/>
           )
         }
