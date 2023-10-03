@@ -208,6 +208,10 @@
     margin-inline: auto;
 }
 
+.title {
+    margin-top: 10px;
+}
+
 .keyboard {
     border: 10px solid pink;
     display: flex;

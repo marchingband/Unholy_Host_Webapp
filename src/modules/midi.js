@@ -223,8 +223,11 @@ export const useConfig = () => {
     const [CAL_3_5, setCAL_3_5] = useState(4.074)
     const [CAL_3_6, setCAL_3_6] = useState(5.148)
 
+    const [midiChannel, setMidiChannel] = useState(0)
+    const [mergeMidi, setMergeMidi] = useState(false)
 
     const state = {
+
         POLYPHONY_MODE, 
         CV_1_SOURCE, 
         CV_2_SOURCE, 
@@ -273,6 +276,8 @@ export const useConfig = () => {
         GATE_8_SOURCE, 
         GATE_8_NOTE, 
         GATE_8_INVERT,
+        midiChannel,
+        mergeMidi,
         calibrating,
         calibrationPitch,
         showModal, 
@@ -346,6 +351,8 @@ export const useConfig = () => {
         setGATE_8_SOURCE, 
         setGATE_8_NOTE, 
         setGATE_8_INVERT,
+        setMidiChannel,
+        setMergeMidi,
         setCalibrating,
         setCalibrationPitch,
         setShowModal,

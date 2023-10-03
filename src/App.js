@@ -38,9 +38,15 @@ function App() {
         </span>
         <span 
           className='button'
-          onClick={()=>setPage("midi")}  
+          onClick={()=>setPage("tools")}  
         >
           TOOLS
+        </span>
+        <span 
+          className='button'
+          onClick={()=>setPage("midi")}  
+        >
+          MIDI
         </span>
         <h2>
           UNHOLY HOST
@@ -60,6 +66,9 @@ function App() {
         </span>
       </span>
         <div className={"App" + (page != "home" ? " visually-hidden" : "")}>
+          <div className='title'>
+            polyphony mode
+          </div>
           <div className='select-group group'>
             {
               polyhponyModes.map((mode,i)=>
@@ -74,6 +83,9 @@ function App() {
                 </label>
               )
             }
+          </div>
+          <div className='title'>
+            source of CV output value
           </div>
           <div className="select-group group">
             {
@@ -101,6 +113,9 @@ function App() {
               )
             }
           </div>
+          <div className='title'>
+            polyphony mode for each CV group
+          </div>
           <div className="select-group group">
             {
               [
@@ -125,6 +140,9 @@ function App() {
                 </label>          
               )
             }
+          </div>
+          <div className='title'>
+            volts per octave or hz per volt
           </div>
           <div className="select-group group">
             {
@@ -151,6 +169,9 @@ function App() {
               )
             }
           </div>
+          <div className='title'>
+            how far the pitchbend goes
+          </div>
           <div className="select-group group">
               <label>
                 PITCHBEND RANGE
@@ -167,6 +188,9 @@ function App() {
                   }
                 </select>
               </label>          
+          </div>
+          <div className='title'>
+            CC1 CC2 and CC3 each listen on one CC channel
           </div>
           <div className="select-group group">
             {
@@ -192,6 +216,9 @@ function App() {
                 </label>          
               )
             }
+          </div>
+          <div className='title'>
+            All 8 clocks can be divided independently
           </div>
           <div className="group">
             <div className="select-group">
@@ -247,6 +274,9 @@ function App() {
               }
             </div>
           </div>
+          <div className='title'>
+            In transport mode, gates can send a trigger every x beats
+          </div>
           <div className="select-group group">
             {
               [
@@ -271,6 +301,9 @@ function App() {
                 </label>          
               )
             }
+          </div>
+          <div className='title'>
+            What controls each gate
           </div>
           <div className="group">
             <div className="select-group">
@@ -478,7 +511,7 @@ function App() {
             )
           }
         </div>
-        <div className={"App" + (page != "midi" ? " visually-hidden" : "")}>
+        <div className={"App" + (page != "tools" ? " visually-hidden" : "")}>
           <div className='metronome'>
             <h2>
               METRONOME and KEYPAD
@@ -524,6 +557,45 @@ function App() {
                 <Key key={i} note={note} sendNoteOn={sendNoteOn} sendNoteOff={sendNoteOff}/>
               )
             }
+          </div>
+        </div>
+        <div className={"App" + (page != "midi" ? " visually-hidden" : "")}>
+          <div className="select-group group">
+            <label>
+              MIDI CHANNEL
+              <select
+                value={config.midiChannel}
+                onChange={e=>config.setMidiChannel(e.target.value)}
+              >
+                {
+                  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map((chan, i)=>
+                    <option value={chan} key={i}>
+                      {chan == 0 ? "omni" : chan}
+                    </option>
+                  )
+                }
+              </select>
+            </label>          
+            <label>
+              MERGE/ROUTE MIDI
+              <select
+                value={config.mergeMidi}
+                onChange={e=>config.setMergeMidi(e.target.value)}
+              >
+                <option value={0}>
+                  NONE
+                </option>
+                <option value={1}>
+                  USB TO MIDI OUT
+                </option>
+                <option value={2}>
+                  MIDI IN AND USB TO MIDI OUT
+                </option>
+                <option value={3}>
+                  MIDI IN TO MIDI OUT
+                </option>
+              </select>
+            </label>          
           </div>
         </div>
     </div>
