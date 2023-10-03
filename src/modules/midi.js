@@ -224,7 +224,7 @@ export const useConfig = () => {
     const [CAL_3_6, setCAL_3_6] = useState(5.148)
 
     const [midiChannel, setMidiChannel] = useState(0)
-    const [mergeMidi, setMergeMidi] = useState(false)
+    const [mergeMidi, setMergeMidi] = useState(0)
 
     const state = {
 
@@ -661,7 +661,9 @@ export const setConfigFromArray = (data, store) => {
     store.setGATE_8_SOURCE(               data[45]) 
     store.setGATE_8_NOTE(                 data[46]) 
     store.setGATE_8_INVERT(               data[47])
-    let i = 48
+    store.setMidiChannel(                 data[48])
+    store.setMergeMidi(                   data[49])
+    let i = 50
     store.setCAL_1_0(                     intArrayToFloat(data.slice(i, i+4)))
     i+=4
     store.setCAL_1_1(                     intArrayToFloat(data.slice(i, i+4)))
@@ -755,6 +757,8 @@ export const getConfigArray = store => {
         store.GATE_8_SOURCE, 
         store.GATE_8_NOTE, 
         store.GATE_8_INVERT,
+        store.midiChannel,
+        store.mergeMidi,
         ...floatToIntArray(store.CAL_1_0),
         ...floatToIntArray(store.CAL_1_1),
         ...floatToIntArray(store.CAL_1_2),
