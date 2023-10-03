@@ -329,12 +329,13 @@ function App() {
                           )
                         }
                       </select>
-                    </label>          
-                    <label>
+                    </label>       
+                    <label className={getGate != 0 ? "grey" : ""}>
                       {"GATE " + (i + 1) + " NOTE"}
                       <select
                         value={getNote}
                         onChange={e=>setNote(e.target.value)}
+                        disabled={getGate != 0}
                       >
                         {
                           midiNotes.map((note,i)=>

@@ -212,6 +212,15 @@
     margin-top: 10px;
 }
 
+.grey {
+    outline-color: #303030;
+    color: #303030;
+}
+.grey select{
+    outline-color: #303030;
+    color: #303030;
+}
+
 .keyboard {
     border: 10px solid pink;
     display: flex;
