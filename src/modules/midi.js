@@ -79,6 +79,7 @@ export const midiNotesInRange = Array(60).fill().map((_,i)=>i+33)
 export const tempos = Array(200).fill().map((_,i)=>i+40)
 
 export const calibration_values = [0, 1, 13, 25, 37, 49, 59];
+export const calibration_note_names = ["A1", "Bb1", "Bb2", "Bb3", "Bb4", "Bb5", "Ab6"];
 
 
 // gate sources
@@ -413,12 +414,13 @@ export const useMidi = (config) => {
             console.log( "Output port [type:'" + output.type + "'] id:'" + output.id +
             "' manufacturer:'" + output.manufacturer + "' name:'" + output.name +
             "' version:'" + output.version + "'" );
-            if(output.name == "Seeeduino XIAO"){
+            if(output.name == "MIDI2CVBOY"){
+            // if(output.name == "Seeeduino XIAO"){
                 console.log("found UCB output, connecting")
                 setMidiOut(output)
                 return output
             }
-            // midiOut = output
+            midiOut = output
         }
     },[midiOut])
 
@@ -433,7 +435,8 @@ export const useMidi = (config) => {
 
     const startMidi = useCallback((midi, output) => {
         midi.inputs.forEach(entry => {
-            if(entry.name == "Seeeduino XIAO"){
+            if(entry.name == "MIDI2CVBOY"){
+            // if(entry.name == "Seeeduino XIAO"){
                 console.log("found UCB input, connecting")
                 entry.onmidimessage = onMIDIMessage
                 entry.onstatechange = ({port}) => {
